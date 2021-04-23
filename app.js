@@ -4,7 +4,7 @@
  * @Author: wanglong
  * @Date: 2021-01-22 14:21:03
  * @LastEditors: wanglong
- * @LastEditTime: 2021-01-29 16:13:38
+ * @LastEditTime: 2021-04-02 10:49:02
  */
 var createError = require('http-errors');
 var express = require('express');
@@ -12,16 +12,23 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var Todo = require("./models/Todo");
+// 引入并使用cors中间件 处理跨域 
+var cors = require("cors");
 
 var indexRouter = require('./routes/index');
+var userLogin = require('./routes/user/login');
+var userRegister = require('./routes/user/register');
 var addTodoRouter = require('./routes/addTodo');
 var todoSearchRouter = require('./routes/todoSearch');
 var todoDeleteRouter = require('./routes/deleteTodo');
 var usersRouter = require('./routes/users');
+//获取用户信息
+var getUserInfo = require('./routes/user/getUserInfo');
 
 var fileupload = require('./routes/fileUpload/fileupload');
 
 var app = express();
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,11 +36,21 @@ app.set('view engine', 'jade');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({
+    extended: false
+}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "uploads")));
 
 app.use('/', indexRouter);
+//登录
+app.use('/login', userLogin);
+//获取用户信息
+app.use('/userInfo', getUserInfo);
+//注册
+app.use('/register', userRegister);
+
 app.use('/users', usersRouter);
 //新增todo
 app.use('/todo/create', addTodoRouter);
